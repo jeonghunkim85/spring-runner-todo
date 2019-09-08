@@ -1,4 +1,6 @@
-site.author: JKim.
+site:
+  author: JKim.
+  toggles.auth: true
 
 logging:
   level:
