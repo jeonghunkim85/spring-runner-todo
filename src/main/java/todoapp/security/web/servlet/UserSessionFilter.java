@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 import todoapp.security.UserSession;
+import todoapp.security.UserSessionRepository;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,9 +24,19 @@ public class UserSessionFilter extends OncePerRequestFilter {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    private UserSessionRepository sessionRepository;
+
+    public UserSessionFilter(UserSessionRepository sessionRepository) {
+        this.sessionRepository = sessionRepository;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        throw new UnsupportedOperationException("unimplemented feature for UserSessionFilter");
+        UserSession userSession = sessionRepository.get();
+        UserSessionRequestWrapper requestWrapper = new UserSessionRequestWrapper(request, userSession);
+
+        filterChain.doFilter(requestWrapper, response);
+//        throw new UnsupportedOperationException("unimplemented feature for UserSessionFilter");
     }
 
 
@@ -45,12 +56,14 @@ public class UserSessionFilter extends OncePerRequestFilter {
 
         @Override
         public Principal getUserPrincipal() {
-            throw new UnsupportedOperationException("unimplemented feature for UserSessionRequestWrapper");
+//            throw new UnsupportedOperationException("unimplemented feature for UserSessionRequestWrapper");
+            return userSession.orElse(null);
         }
 
         @Override
         public boolean isUserInRole(String role) {
-            throw new UnsupportedOperationException("unimplemented feature for UserSessionRequestWrapper");
+//            throw new UnsupportedOperationException("unimplemented feature for UserSessionRequestWrapper");
+            return userSession.map(us -> us.hasRole(role)).orElse(false);
         }
 
     }
