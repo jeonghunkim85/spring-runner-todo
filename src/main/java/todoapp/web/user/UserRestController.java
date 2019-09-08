@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.RestController;
 import todoapp.security.UserSession;
 import todoapp.web.model.UserProfile;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.Objects;
 
 @RestController
 public class UserRestController {
 
+    @RolesAllowed({"ROLE_USER"})
     @GetMapping("api/user/profile")
     public ResponseEntity<UserProfile> userProfile(UserSession userSession) {
 
