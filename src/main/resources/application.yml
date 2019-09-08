@@ -1,0 +1,6 @@
+site.author: JKim.
+
+logging:
+  level:
+    org.springframework.web: BEBUG
+    todoapp: DEBUG
