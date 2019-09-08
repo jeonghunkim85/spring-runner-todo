@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import todoapp.core.user.application.UserJoinder;
 import todoapp.core.user.application.UserPasswordVerifier;
+import todoapp.core.user.domain.User;
 import todoapp.core.user.domain.UserEntityNotFoundException;
 import todoapp.core.user.domain.UserPasswordNotMatchedException;
+import todoapp.security.UserSession;
+import todoapp.security.UserSessionRepository;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -25,12 +28,13 @@ public class LoginController {
     private Logger log = LoggerFactory.getLogger(LoginController.class);
 
     private UserPasswordVerifier verifier;
-
     private UserJoinder joinder;
+    private UserSessionRepository sessionRepository;
 
-    public LoginController(UserPasswordVerifier verifier, UserJoinder joinder) {
+    public LoginController(UserPasswordVerifier verifier, UserJoinder joinder, UserSessionRepository sessionRepository) {
         this.verifier = verifier;
         this.joinder = joinder;
+        this.sessionRepository = sessionRepository;
     }
 
     @GetMapping
@@ -52,10 +56,12 @@ public class LoginController {
           // 비밀번호가 비일치하면: login 페이지로 돌려보내고, 오류 메세지 노출
 
         try {
-            verifier.verify(command.getUsername(), command.getPassword());
+            User logined = verifier.verify(command.getUsername(), command.getPassword());
+            sessionRepository.set(new UserSession(logined));
         }catch (UserEntityNotFoundException error) {
             //사용자 저장소에 사용자가 없을 경우: 신규 사용자로 가입 처리
-            joinder.join(command.getUsername(), command.getPassword());
+            User logined = joinder.join(command.getUsername(), command.getPassword());
+            sessionRepository.set(new UserSession(logined));
         }
 
         return "redirect:/todos";
