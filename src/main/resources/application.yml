@@ -1,6 +1,8 @@
 site:
   author: JKim.
-  toggles.auth: true
+  toggles:
+    auth: true
+    onlineUsersCounter: true
 
 logging:
   level:
